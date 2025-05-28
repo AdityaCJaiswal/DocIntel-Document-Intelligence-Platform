@@ -91,21 +91,21 @@ export default function ChatBot() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow p-8 text-gray-900 dark:text-gray-100">
       {/* Back Button */}
       <div className="flex items-center mb-4">
         <button
           onClick={() => navigate('/')}
-          className="p-2 text-gray-400 hover:text-gray-600 rounded-md mr-3"
+          className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-md mr-3"
         >
           <ArrowLeft className="h-5 w-5" />
         </button>
-        <span className="text-lg font-semibold text-gray-700">Back to Home</span>
+        <span className="text-lg font-semibold text-gray-700 dark:text-gray-100">Back to Home</span>
       </div>
       {/* Document Picker Step */}
       {showDocPicker ? (
-        <div className="flex flex-col items-center justify-center py-16 bg-white rounded-lg shadow">
-          <h2 className="text-xl font-bold mb-6">Start a New Chat</h2>
+        <div className="flex flex-col items-center justify-center py-16 bg-white dark:bg-gray-800 rounded-lg shadow">
+          <h2 className="text-xl font-bold mb-6 text-gray-900 dark:text-gray-100">Start a New Chat</h2>
           <div className="flex gap-6 mb-8">
             <button
               className="px-6 py-3 bg-blue-600 text-white rounded-md font-medium hover:bg-blue-700 transition"
@@ -121,11 +121,11 @@ export default function ChatBot() {
               >
                 Select from Library
               </button>
-              <div className="bg-white border rounded shadow mt-2 p-2">
+              <div className="bg-white dark:bg-gray-800 border rounded shadow mt-2 p-2">
                 {libraryDocs.map(doc => (
                   <button
                     key={doc.id}
-                    className="block w-full text-left px-3 py-2 hover:bg-blue-50 rounded transition"
+                    className="block w-full text-left px-3 py-2 hover:bg-blue-50 dark:hover:bg-gray-700 rounded transition text-gray-900 dark:text-gray-100"
                     onClick={() => handleSelectDoc(doc)}
                   >
                     {doc.title}
