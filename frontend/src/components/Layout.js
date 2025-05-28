@@ -1,19 +1,29 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Upload, FileText, Moon, Sun, Settings } from 'lucide-react';
 
 const Layout = ({ children }) => {
   const location = useLocation();
-  const [darkMode, setDarkMode] = React.useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    // Toggle dark class on body
+    if (darkMode) {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+  }, [darkMode]);
 
   const navigation = [
     { name: 'Home', href: '/', icon: Home },
     { name: 'Upload', href: '/upload', icon: Upload },
+    // ...add other nav items here...
   ];
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
-      <nav className="bg-white border-b border-gray-200 px-6 py-4">
+    <div className="min-h-screen bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100">
+      <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-8">
             <Link to="/" className="flex items-center space-x-2">
@@ -65,7 +75,7 @@ const Layout = ({ children }) => {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-md"
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-md"
             >
               {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </button>
