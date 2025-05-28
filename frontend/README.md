@@ -1,70 +1,166 @@
-# Getting Started with Create React App
+# Document Intelligence Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack web application that allows users to upload documents and ask natural language questions about their content using RAG (Retrieval Augmented Generation).
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Document Upload**: Drag-and-drop interface for uploading PDFs, Word docs, and text files
+- **Document Library**: View all uploaded documents with metadata
+- **AI Chat Interface**: Ask natural language questions about document content
+- **Responsive Design**: Works on desktop and mobile devices
+- **Error Handling**: Comprehensive error boundaries and loading states
 
-### `npm start`
+## Tech Stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Frontend
+- React 18 with functional components and hooks
+- React Router for navigation
+- Tailwind CSS for styling
+- Axios for API calls
+- React Dropzone for file uploads
+- Lucide React for icons
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Backend Integration
+- Designed to work with Django REST API
+- JWT authentication support
+- File upload with progress tracking
+- Real-time chat interface
 
-### `npm test`
+## Project Structure
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+src/
+├── components/           # Reusable UI components
+│   ├── Layout.js        # Main layout with navigation
+│   ├── DocumentCard.js  # Document list item
+│   ├── FileUpload.js    # Drag-and-drop upload
+│   ├── ChatInterface.js # Q&A chat component
+│   ├── LoadingSpinner.js# Loading states
+│   └── ErrorBoundary.js # Error handling
+├── pages/               # Main application pages
+│   ├── Dashboard.js     # Document library
+│   ├── Upload.js        # File upload page
+│   └── DocumentChat.js  # Chat interface
+├── context/             # React Context for state
+│   └── DocumentContext.js
+├── hooks/               # Custom React hooks
+│   ├── useDocumentUpload.js
+│   └── useChat.js
+├── services/            # API integration
+│   └── api.js
+└── utils/               # Helper functions
+    ├── constants.js
+    └── helpers.js
+```
 
-### `npm run build`
+## Getting Started
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Prerequisites
+- Node.js 16+
+- npm or yarn
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Installation
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-### `npm run eject`
+3. Create a `.env` file:
+   ```
+   REACT_APP_API_URL=http://localhost:8000/api
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+4. Start the development server:
+   ```bash
+   npm start
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Available Scripts
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+- `npm start` - Run development server
+- `npm build` - Build for production
+- `npm test` - Run tests
+- `npm eject` - Eject from Create React App
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## API Integration
 
-## Learn More
+The frontend expects the following Django REST API endpoints:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```python
+# Document endpoints
+GET /api/documents/              # List all documents
+POST /api/documents/upload/      # Upload document
+GET /api/documents/{id}/         # Get document details
+DELETE /api/documents/{id}/      # Delete document
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# Chat endpoints
+POST /api/documents/{id}/ask/    # Ask question
+GET /api/documents/{id}/chat/    # Get chat history
+```
 
-### Code Splitting
+## Component Documentation
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### DocumentCard
+Displays document information in the library view.
 
-### Analyzing the Bundle Size
+### FileUpload
+Drag-and-drop file upload with validation and progress tracking.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### ChatInterface
+Real-time chat interface for asking questions about documents.
 
-### Making a Progressive Web App
+### Layout
+Main application layout with navigation and responsive design.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## State Management
 
-### Advanced Configuration
+Uses React Context for global state management:
+- Document list and metadata
+- Loading states
+- Error handling
+- Upload progress
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Styling
 
-### Deployment
+Built with Tailwind CSS utility classes:
+- Responsive design
+- Dark mode support (prepared)
+- Consistent color scheme
+- Accessible components
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Error Handling
 
-### `npm run build` fails to minify
+Comprehensive error handling:
+- Error boundaries for React errors
+- API error interceptors
+- User-friendly error messages
+- Loading states for all async operations
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Performance Optimizations
+
+- React.memo for component optimization
+- Lazy loading prepared
+- Image optimization
+- Efficient re-renders with proper dependencies
+
+## Browser Support
+
+- Chrome 88+
+- Firefox 85+
+- Safari 14+
+- Edge 88+
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
+```
