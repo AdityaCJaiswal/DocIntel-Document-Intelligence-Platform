@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import FileUpload from '../components/FileUpload';
 import { useDocumentUpload } from '../hooks/useDocumentUpload';
@@ -23,6 +23,10 @@ const Upload = () => {
     } catch (error) {
       console.error('Upload failed:', error);
     }
+  };
+
+  const handleCancel = () => {
+    navigate('/');
   };
 
   if (uploadSuccess) {
@@ -81,15 +85,23 @@ const Upload = () => {
         />
       </div>
 
-      {/* Cancel Button */}
-      <div className="mt-6 flex justify-end">
-        <button
-          onClick={() => navigate('/')}
-          className="btn-secondary"
-          disabled={uploading}
+      {/* Button Links */}
+      <div className="flex justify-between items-center mt-6">
+        <Link
+          to="/library"
+          className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md font-medium hover:bg-gray-300 transition"
         >
-          Cancel
-        </button>
+          View all Uploaded Document
+        </Link>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md font-medium hover:bg-gray-300 transition"
+            onClick={handleCancel}
+          >
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
   );
