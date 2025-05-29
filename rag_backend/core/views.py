@@ -3,10 +3,10 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework.decorators import api_view
 from rest_framework import status
-from rest_framework.generics import DestroyAPIView
+from rest_framework.generics import DestroyAPIView, RetrieveAPIView
 from .models import Document, Chunk, ChatSession, ChatMessage
 from .rag_utils import process_document, doc_embeddings_map, model, index
-
+from .serializers import ChatSessionSerializer
 import numpy as np
 import os
 import requests
@@ -136,4 +136,6 @@ Answer:"""
         print(f"[ERROR] LM Studio call failed: {e}")
         return Response({"error": f"LM Studio error: {str(e)}"}, status=500) 
     
-
+class ChatSessionDetailView(RetrieveAPIView):
+    queryset = ChatSession.objects.all()
+    serializer_class = ChatSessionSerializer
