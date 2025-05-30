@@ -1,0 +1,167 @@
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser
+from rest_framework.decorators import api_view
+from django.utils.decorators import method_decorator
+from rest_framework import status
+from rest_framework.generics import DestroyAPIView, RetrieveAPIView, ListAPIView
+from .models import Document, Chunk, ChatSession, ChatMessage, DocumentChunk
+from .rag_utils import process_document, doc_embeddings_map, model, index
+from .serializers import ChatSessionSerializer, DocumentChunkSerializer, DocumentSerializer
+import numpy as np
+import os
+import requests
+from django.views.decorators.csrf import ensure_csrf_cookie
+
+# List all documents, ordered by creation date
+class DocumentListView(ListAPIView):
+    queryset = Document.objects.all().order_by('-created_at')
+    serializer_class = DocumentSerializer
+
+# Retrieve single document details
+class DocumentDetailView(RetrieveAPIView):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+
+# Handle document upload and processing
+@method_decorator(ensure_csrf_cookie, name='dispatch')
+class DocumentUploadView(APIView):
+    parser_classes = [MultiPartParser]
+
+    def post(self, request):
+        file = request.FILES.get('file')
+        if not file:
+            return Response({'error': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = DocumentSerializer(data={'file': file, 'title': file.name})
+        if serializer.is_valid():
+            document = serializer.save()
+            process_document(document)  # Process document for RAG
+            return Response({
+                'message': 'Document uploaded and processed successfully',
+                'id': document.id,
+                'title': document.title,
+            }, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# Delete document and clean up associated resources
+class DocumentDeleteView(DestroyAPIView):
+    queryset = Document.objects.all()
+
+    def delete(self, request, *args, **kwargs):
+        doc_id = kwargs.get('pk')
+        try:
+            document = Document.objects.get(id=doc_id)
+            # Clean up chunks and file
+            Chunk.objects.filter(document=document).delete()
+            if document.file and os.path.exists(document.file.path):
+                os.remove(document.file.path)
+            
+            # Reset FAISS index and embeddings
+            index.reset()
+            doc_embeddings_map.clear()
+
+            document.delete()
+            return Response({"message": f"Document {doc_id} and all associated data deleted."})
+        except Document.DoesNotExist:
+            return Response({"error": "Document not found."}, status=404)
+
+# Handle Q&A with RAG implementation
+@api_view(['POST'])
+def ask_question(request):
+    try:
+        document_id = int(request.data.get("document_id"))
+        question = request.data.get("question")
+    except (TypeError, ValueError):
+        return Response({"error": "Invalid or missing document_id/question"}, status=400)
+
+    if document_id not in doc_embeddings_map:
+        return Response({"error": "Document embeddings not found in memory. Try re-uploading."}, status=500)
+
+    # Generate embeddings and find relevant chunks
+    question_embedding = model.encode(question)
+    question_embedding = np.array([question_embedding]).astype("float32")
+    D, I = index.search(question_embedding, k=3)
+    chunks = doc_embeddings_map[document_id]["chunks"]
+    matched_chunks = [chunks[i] for i in I[0] if i < len(chunks)]
+
+    # Prepare prompt with context
+    context = "\n\n".join(matched_chunks)
+    prompt = f"""You are an AI assistant. Use the context below to answer the question.
+
+Context:
+{context}
+
+Question: {question}
+Answer:"""
+
+    try:
+        # Get response from LM Studio
+        lm_response = requests.post(
+            "http://localhost:1234/v1/chat/completions",
+            headers={"Content-Type": "application/json"},
+            json={
+                "model": "local-model",
+                "messages": [
+                    {"role": "system", "content": "You are a helpful assistant."},
+                    {"role": "user", "content": prompt}
+                ],
+                "temperature": 0.3
+            }
+        )
+        response_json = lm_response.json()
+        answer = response_json['choices'][0]['message']['content'].strip()
+
+        # Create or get chat session and save message
+        session_id = request.data.get("session_id")
+        if session_id:
+            session, _ = ChatSession.objects.get_or_create(id=session_id, document_id=document_id)
+        else:
+            session = ChatSession.objects.create(document_id=document_id)
+
+        ChatMessage.objects.create(
+            session=session,
+            question=question,  
+            answer=answer
+        )
+
+        return Response({
+            "answer": answer,
+            "session_id": session.id
+        })
+
+    except Exception as e:
+        print(f"[ERROR] LM Studio call failed: {e}")
+        return Response({"error": f"LM Studio error: {str(e)}"}, status=500) 
+
+# Retrieve chat session details with messages
+class ChatSessionDetailView(RetrieveAPIView):
+    queryset = ChatSession.objects.all()
+    serializer_class = ChatSessionSerializer
+
+# List chunks for a specific document
+class DocumentChunkListView(ListAPIView):
+    serializer_class = DocumentChunkSerializer
+
+    def get_queryset(self):
+        doc_id = self.kwargs.get("document_id")
+        return DocumentChunk.objects.filter(document_id=doc_id).order_by('chunk_index')
+
+# Get chat history for a document
+@api_view(['GET'])
+def chat_history(request, document_id):
+    sessions = ChatSession.objects.filter(document_id=document_id).order_by('-created_at')
+    data = []
+    for session in sessions:
+        data.append({
+            "session_id": session.id,
+            "created_at": session.created_at,
+            "messages": [
+                {
+                    "question": msg.question,
+                    "answer": msg.answer,
+                    "created_at": msg.created_at
+                } for msg in session.messages.all().order_by('created_at')
+            ]
+        })
+    return Response(data)

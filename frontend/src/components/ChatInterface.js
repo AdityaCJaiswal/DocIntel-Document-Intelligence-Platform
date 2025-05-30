@@ -1,10 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User } from 'lucide-react';
 
+// ChatInterface: A component for handling document-based Q&A interactions
+// Props:
+// - documentId: ID of the current document
+// - messages: Array of chat messages
+// - onSendMessage: Callback for sending new messages
+// - loading: Boolean indicating if a response is being processed
 const ChatInterface = ({ documentId, messages, onSendMessage, loading }) => {
+  // State for managing user input
   const [question, setQuestion] = useState('');
   const messagesEndRef = useRef(null);
 
+  // Auto-scroll chat to bottom when new messages arrive
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -13,6 +21,7 @@ const ChatInterface = ({ documentId, messages, onSendMessage, loading }) => {
     scrollToBottom();
   }, [messages]);
 
+  // Handle message submission
   const handleSubmit = (e) => {
     e.preventDefault();
     if (question.trim()) {
@@ -23,8 +32,10 @@ const ChatInterface = ({ documentId, messages, onSendMessage, loading }) => {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Chat messages container with scroll */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.length === 0 ? (
+          // Empty state with suggestions
           <div className="text-center text-gray-500 mt-8">
             <Bot className="h-12 w-12 mx-auto mb-4 text-gray-300" />
             <p>Ask me anything about this document!</p>
@@ -38,9 +49,11 @@ const ChatInterface = ({ documentId, messages, onSendMessage, loading }) => {
             </div>
           </div>
         ) : (
+          // Message list with user/bot styling
           messages.map((message, index) => (
             <div key={index} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div className={`flex max-w-3xl ${message.type === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                {/* Avatar */}
                 <div className={`flex-shrink-0 ${message.type === 'user' ? 'ml-3' : 'mr-3'}`}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
                     message.type === 'user' ? 'bg-blue-600' : 'bg-gray-200'
@@ -52,6 +65,7 @@ const ChatInterface = ({ documentId, messages, onSendMessage, loading }) => {
                     )}
                   </div>
                 </div>
+                {/* Message bubble */}
                 <div className={`px-4 py-2 rounded-lg ${
                   message.type === 'user' 
                     ? 'bg-blue-600 text-white' 
@@ -70,6 +84,7 @@ const ChatInterface = ({ documentId, messages, onSendMessage, loading }) => {
             </div>
           ))
         )}
+        {/* Loading indicator */}
         {loading && (
           <div className="flex justify-start">
             <div className="flex mr-3">
@@ -89,6 +104,7 @@ const ChatInterface = ({ documentId, messages, onSendMessage, loading }) => {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Input form */}
       <div className="border-t border-gray-200 p-4">
         <form onSubmit={handleSubmit} className="flex space-x-4">
           <input
