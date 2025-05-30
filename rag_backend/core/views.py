@@ -5,14 +5,13 @@ from rest_framework.decorators import api_view
 from django.utils.decorators import method_decorator  # ✅ Correct location
 from rest_framework import status
 from rest_framework.generics import DestroyAPIView, RetrieveAPIView, ListAPIView
-from django.views.decorators.csrf import csrf_exempt
 from .models import Document, Chunk, ChatSession, ChatMessage, DocumentChunk
 from .rag_utils import process_document, doc_embeddings_map, model, index
 from .serializers import ChatSessionSerializer, DocumentChunkSerializer
 import numpy as np
 import os
 import requests
-
+from django.views.decorators.csrf import ensure_csrf_cookie
 from .serializers import DocumentSerializer
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 
@@ -24,7 +23,7 @@ class DocumentDetailView(RetrieveAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
 
-method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(ensure_csrf_cookie, name='dispatch')
 class DocumentUploadView(APIView):
     parser_classes = [MultiPartParser]
 

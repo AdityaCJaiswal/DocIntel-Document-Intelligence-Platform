@@ -9,9 +9,12 @@ import { DocumentProvider } from './context/DocumentContext';
 import ChatBot from './pages/ChatBot';
 import Library from './pages/Library';
 import { useEffect } from 'react';
-
+import { useCsrf } from './hooks/useCsrf';
 function App() {
   
+  useCsrf();
+  
+
   return (
     <ErrorBoundary>
       <DocumentProvider>
