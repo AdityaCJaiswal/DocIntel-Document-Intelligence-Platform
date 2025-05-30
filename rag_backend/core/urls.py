@@ -9,6 +9,10 @@ from django.http import JsonResponse
 def csrf_token_view(request):
     return JsonResponse({'message': 'CSRF cookie set'})
 
+@csrf_protect
+def csrf_cookie_view(request):
+    return JsonResponse({'message': 'CSRF cookie set'})
+
 
 urlpatterns = [ 
     path('upload/', DocumentUploadView.as_view(), name='upload-document'),
@@ -20,7 +24,7 @@ urlpatterns = [
     path('documents/<int:document_id>/chunks/', DocumentChunkListView.as_view(), name='document-chunks'),
     path('documents/<int:document_id>/chat-history/', chat_history, name='chat-history'),
     
-    
+    path("api/csrf/", csrf_cookie_view),
     path('csrf/', csrf_token_view),
 ]
 

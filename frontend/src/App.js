@@ -8,11 +8,10 @@ import ErrorBoundary from './components/ErrorBoundary';
 import { DocumentProvider } from './context/DocumentContext';
 import ChatBot from './pages/ChatBot';
 import Library from './pages/Library';
+import { useEffect } from 'react';
 
 function App() {
-  useEffect(() => {
-    getCSRFToken(); // ✅ Set CSRF cookie on initial load
-  }, []);
+  
   return (
     <ErrorBoundary>
       <DocumentProvider>

@@ -24,18 +24,28 @@ class DocumentDetailView(RetrieveAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
 
-@method_decorator(csrf_exempt, name='dispatch')
+method_decorator(csrf_exempt, name='dispatch')
 class DocumentUploadView(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request):
-        file = request.FILES['file']
+        file = request.FILES.get('file')
+
+        if not file:
+            return Response({'error': 'No file provided.'}, status=status.HTTP_400_BAD_REQUEST)
+
         serializer = DocumentSerializer(data={'file': file, 'title': file.name})
         if serializer.is_valid():
-            document = serializer.save(title=file.name)
+            document = serializer.save()
             process_document(document)
-            return Response({'message': 'Document uploaded and processed successfully', 'document_id': document.id})
-        return Response(serializer.errors, status=400)
+
+            return Response({
+                'message': 'Document uploaded and processed successfully',
+                'id': document.id,
+                'title': document.title,
+            }, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class DocumentDeleteView(DestroyAPIView):
     queryset = Document.objects.all()
