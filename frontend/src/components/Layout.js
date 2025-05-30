@@ -28,7 +28,7 @@ const Layout = ({ children }) => {
           <div className="flex items-center space-x-8">
             <Link to="/" className="flex items-center space-x-2">
               <FileText className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">DocSense</span>
+              <span className="text-xl font-bold text-gray-900">DocIntel</span>
             </Link>
             
             <div className="hidden md:flex space-x-6">
@@ -49,7 +49,7 @@ const Layout = ({ children }) => {
                   </Link>
                 );
               })}
-              <Link
+              {/* <Link
                 to="/chat"
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   location.pathname === '/chat'
@@ -58,7 +58,7 @@ const Layout = ({ children }) => {
                 }`}
               >
                 <span>Chat</span>
-              </Link>
+              </Link> */}
               <Link
                 to="/library"
                 className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -82,7 +82,7 @@ const Layout = ({ children }) => {
             <button className="p-2 text-gray-400 hover:text-gray-600 rounded-md">
               <Settings className="h-5 w-5" />
             </button>
-            <div className="h-8 w-8 bg-gray-300 rounded-full"></div>
+            {/* <div className="h-8 w-8 bg-gray-300 rounded-full"></div> */}
           </div>
         </div>
       </nav>
