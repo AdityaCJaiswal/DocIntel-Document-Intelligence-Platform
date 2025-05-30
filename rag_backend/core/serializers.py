@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Document, ChatSession, ChatMessage
+from .models import Document, ChatSession, ChatMessage, DocumentChunk
 
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,3 +18,9 @@ class ChatSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChatSession
         fields = ['id', 'document', 'created_at', 'messages']
+
+
+class DocumentChunkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DocumentChunk
+        fields = ['chunk_index', 'page_number', 'content']

@@ -10,6 +10,9 @@ import ChatBot from './pages/ChatBot';
 import Library from './pages/Library';
 
 function App() {
+  useEffect(() => {
+    getCSRFToken(); // ✅ Set CSRF cookie on initial load
+  }, []);
   return (
     <ErrorBoundary>
       <DocumentProvider>

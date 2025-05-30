@@ -38,3 +38,12 @@ class ChatMessage(models.Model):
 
     def __str__(self):
         return f"Message {self.id} in Session {self.session.id}"
+
+class DocumentChunk(models.Model):
+    document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='docchunks')
+    chunk_index = models.IntegerField()
+    page_number = models.IntegerField()
+    content = models.TextField()
+
+    def __str__(self):
+        return f"Chunk {self.chunk_index} (Page {self.page_number}) of {self.document.title}"

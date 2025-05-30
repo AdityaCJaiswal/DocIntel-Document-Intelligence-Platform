@@ -2,15 +2,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework.decorators import api_view
+from django.utils.decorators import method_decorator  # ✅ Correct location
 from rest_framework import status
-from rest_framework.generics import DestroyAPIView, RetrieveAPIView
-from .models import Document, Chunk, ChatSession, ChatMessage
+from rest_framework.generics import DestroyAPIView, RetrieveAPIView, ListAPIView
+from django.views.decorators.csrf import csrf_exempt
+from .models import Document, Chunk, ChatSession, ChatMessage, DocumentChunk
 from .rag_utils import process_document, doc_embeddings_map, model, index
-from .serializers import ChatSessionSerializer
+from .serializers import ChatSessionSerializer, DocumentChunkSerializer
 import numpy as np
 import os
 import requests
-
 
 from .serializers import DocumentSerializer
 from rest_framework.generics import ListAPIView, RetrieveAPIView
@@ -23,7 +24,7 @@ class DocumentDetailView(RetrieveAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class DocumentUploadView(APIView):
     parser_classes = [MultiPartParser]
 
@@ -82,7 +83,8 @@ def ask_question(request):
     # Step 2: Search in FAISS
     D, I = index.search(question_embedding, k=3)
     chunks = doc_embeddings_map[document_id]["chunks"]
-    matched_chunks = [chunks[i] for i in I[0]]
+    matched_chunks = [chunks[i] for i in I[0] if i < len(chunks)]
+
 
     # Step 3: Build the prompt
     context = "\n\n".join(matched_chunks)
@@ -122,7 +124,7 @@ Answer:"""
         # Save the chat message
         ChatMessage.objects.create(
             session=session,
-            question=question,
+            question=question,  
             answer=answer
         )
 
@@ -139,3 +141,30 @@ Answer:"""
 class ChatSessionDetailView(RetrieveAPIView):
     queryset = ChatSession.objects.all()
     serializer_class = ChatSessionSerializer
+
+class DocumentChunkListView(ListAPIView):
+    serializer_class = DocumentChunkSerializer
+
+    def get_queryset(self):
+        doc_id = self.kwargs.get("document_id")
+        return DocumentChunk.objects.filter(document_id=doc_id).order_by('chunk_index')
+    
+
+
+@api_view(['GET'])
+def chat_history(request, document_id):
+    sessions = ChatSession.objects.filter(document_id=document_id).order_by('-created_at')
+    data = []
+    for session in sessions:
+        data.append({
+            "session_id": session.id,
+            "created_at": session.created_at,
+            "messages": [
+                {
+                    "question": msg.question,
+                    "answer": msg.answer,
+                    "created_at": msg.created_at
+                } for msg in session.messages.all().order_by('created_at')
+            ]
+        })
+    return Response(data)

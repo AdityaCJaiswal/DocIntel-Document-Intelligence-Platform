@@ -1,6 +1,8 @@
 import { useState } from 'react';
-import { documentAPI } from '../services/api';
+import axios from 'axios';
 import { useDocuments } from '../context/DocumentContext';
+import Cookies from 'js-cookie'; // ✅ npm install js-cookie
+
 
 export const useDocumentUpload = () => {
   const [uploading, setUploading] = useState(false);
@@ -11,15 +13,33 @@ export const useDocumentUpload = () => {
     setUploading(true);
     setProgress(0);
 
+    const formData = new FormData();
+    formData.append('file', file);
+
     try {
-      const response = await documentAPI.uploadDocument(file);
+      const response = await axios.post(
+        'http://localhost:8000/api/documents/upload/',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'X-CSRFToken': Cookies.get('csrftoken'), 
+          },
+          withCredentials: true, // ✅ Required for CSRF cookies
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setProgress(percentCompleted);
+          },
+        }
+      );
+
       dispatch({ type: 'ADD_DOCUMENT', payload: response.data });
-      setProgress(100);
       return response.data;
     } catch (error) {
-      dispatch({ 
-        type: 'SET_ERROR', 
-        payload: error.response?.data?.message || 'Failed to upload document' 
+      console.error('Upload failed:', error);
+      dispatch({
+        type: 'SET_ERROR',
+        payload: error.response?.data?.message || 'Failed to upload document',
       });
       throw error;
     } finally {
@@ -31,6 +51,6 @@ export const useDocumentUpload = () => {
   return {
     uploadDocument,
     uploading,
-    progress
+    progress,
   };
 };

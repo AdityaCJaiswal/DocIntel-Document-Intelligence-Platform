@@ -1,10 +1,11 @@
 import os
 import pdfplumber
 from docx import Document as DocxDocument
-from .models import Chunk
+from .models import Chunk, DocumentChunk
 from sentence_transformers import SentenceTransformer
 import numpy as np
 import faiss
+
 
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
@@ -52,9 +53,15 @@ def process_document(document):
     chunks = chunk_text(text)
 
     embeddings = []
-
+    
     for i, chunk in enumerate(chunks):
         Chunk.objects.create(document=document, content=chunk, chunk_index=i)
+        DocumentChunk.objects.create(
+            document=document,
+            chunk_index=i, 
+            page_number=chunk_page_mapping[i],  # or any logic
+            content=chunk
+        )
         embedding = model.encode(chunk)
         embeddings.append(embedding)
 
@@ -76,3 +83,47 @@ def process_document(document):
     document.file_type = os.path.splitext(document.file.name)[1].replace('.', '')
     document.pages = text.count('\f') + 1 if document.file_type == 'pdf' else None
     document.save()
+
+def process_document(document):
+    # Step 1: Extract full text
+    text = extract_text(document)
+
+    # Step 2: Split into chunks
+    chunks = chunk_text(text)
+
+    embeddings = []
+
+    for i, chunk in enumerate(chunks):
+        # Step 3: Save each chunk to the database (no page number mapping for now)
+        DocumentChunk.objects.create(
+            document=document,
+            chunk_index=i,
+            page_number=1,  # Default value since mapping is not defined
+            content=chunk
+        )
+
+        # Step 4: Generate embedding
+        embedding = model.encode(chunk)
+        embeddings.append(embedding)
+
+    # Step 5: Convert embeddings to NumPy and store in FAISS
+    embeddings_np = np.array(embeddings).astype("float32")
+    index.add(embeddings_np)
+
+    # Step 6: Store in memory
+    doc_embeddings_map[document.id] = {
+        "chunks": chunks,
+        "embeddings": embeddings_np
+    }
+
+    # Step 7: Update document metadata
+    document.processing_status = 'processed'
+    document.size = os.path.getsize(document.file.path)
+    document.file_type = os.path.splitext(document.file.name)[1].replace('.', '')
+    document.pages = text.count('\f') + 1 if document.file_type == 'pdf' else None
+    document.save()
+
+    # Debug
+    print(f"[INFO] Processed {len(chunks)} chunks for document ID {document.id}")
+    print(f"[INFO] Embeddings shape: {embeddings_np.shape}")
+    print(f"[INFO] doc_embeddings_map keys: {list(doc_embeddings_map.keys())}")
