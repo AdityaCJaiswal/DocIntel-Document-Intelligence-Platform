@@ -228,7 +228,7 @@ GET    /api/documents/{id}/chunks                     # List all documents
 POST   /api/upload/                                   # Upload new document
 DELETE /api/documents/{id}/delete                     # Delete document
 GET    /api/{id}/chat-history/                        # Get chat history
-GET    /api/document/api/{id}/chat-history/ # Get chat history
+GET    /api/document/api/{id}/chat-history/           # Get chat history
 GET    /api/session/{id}/                             # Get session details
 POST   /api/ask                                       # Send chat message
 ```
