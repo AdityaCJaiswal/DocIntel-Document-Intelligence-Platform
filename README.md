@@ -222,15 +222,15 @@ LM_STUDIO_URL = 'http://localhost:1234/v1/chat/completions'
 
 ### API Endpoints
 ```
-GET    /api/documents/            # List all documents
-GET    /api/documents/{id}        # List documents by id
-GET    /api/documents/{id}/chunks # List all documents
-POST   /api/upload/               # Upload new document
-DELETE /api/documents/{id}/delete # Delete document
-GET    /api/{id}/chat-history/    # Get chat history
+GET    /api/documents/                                # List all documents
+GET    /api/documents/{id}                            # List documents by id
+GET    /api/documents/{id}/chunks                     # List all documents
+POST   /api/upload/                                   # Upload new document
+DELETE /api/documents/{id}/delete                     # Delete document
+GET    /api/{id}/chat-history/                        # Get chat history
 GET    /api/document/api/{id}/chat-history/ # Get chat history
-GET    /api/session/{id}/         # Get session details
-POST   /api/ask                   # Send chat message
+GET    /api/session/{id}/                             # Get session details
+POST   /api/ask                                       # Send chat message
 ```
 
 ## 🎯 Key Advantages
