@@ -4,9 +4,6 @@
 
 ## 📱 Screenshots
 
-### Demo
-![Demo](ui_ss/demo-video.mp4)
-
 ### Main Interface
 ![Main Interface](ui_ss/home.png)
 
@@ -67,15 +64,24 @@ rag_backend/
 docintel-frontend/
 ├── src/
 │   ├── components/
-│   │   ├── DocumentLibrary.js
-│   │   ├── DocumentUpload.js
+│   │   ├── DocumentCard.js
 │   │   ├── ChatInterface.js
-│   │   └── DocumentPreview.js
+│   │   ├── ErrorBoundary.js
+│   │   ├── Layout.js
+│   │   ├── LoadingSpinner.js
+│   │   └── FileUpload
 │   ├── context/
-│   │   └── AppContext.js
+│   │   └── DocumentContext.js
+│   ├── hooks/
+│   │   ├── useChat.js
+│   │   ├── useCsrf.js
+│   │   └── useDocumentUpload.js
 │   ├── pages/
-│   │   ├── Home.js
-│   │   └── ChatPage.js
+│   │   ├── Chatbot.js
+│   │   ├── DocumentChat.js
+│   │   ├── Dashboard.js
+│   │   ├── Library.js
+│   │   └── Upload.js
 │   └── App.js
 └── package.json
 ```
@@ -112,14 +118,14 @@ docintel-frontend/
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/docintel.git
-cd docintel/backend
+git clone https://github.com/AdityaCJaiswal/DocIntel-Document-Intelligence-Platform
+cd DocIntel-Document-Intelligence-Platform/rag_backend
 ```
 
 2. **Create virtual environment**
 ```bash
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # On Windows: venv\Scripts\activate or .\venv\Scripts\Activate.ps1
 ```
 
 3. **Install dependencies**
@@ -138,6 +144,9 @@ DATABASES = {
         'PASSWORD': 'your_mysql_password',
         'HOST': 'localhost',
         'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 ```
@@ -213,11 +222,15 @@ LM_STUDIO_URL = 'http://localhost:1234/v1/chat/completions'
 
 ### API Endpoints
 ```
-GET    /api/documents/          # List all documents
-POST   /api/documents/upload/   # Upload new document
-DELETE /api/documents/{id}/     # Delete document
-GET    /api/chat/{doc_id}/      # Get chat history
-POST   /api/chat/{doc_id}/      # Send chat message
+GET    /api/documents/            # List all documents
+GET    /api/documents/{id}        # List documents by id
+GET    /api/documents/{id}/chunks # List all documents
+POST   /api/upload/               # Upload new document
+DELETE /api/documents/{id}/delete # Delete document
+GET    /api/{id}/chat-history/    # Get chat history
+GET    /api/document/api/{id}/chat-history/ # Get chat history
+GET    /api/session/{id}/         # Get session details
+POST   /api/ask                   # Send chat message
 ```
 
 ## 🎯 Key Advantages
@@ -267,9 +280,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/docintel/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/docintel/discussions)
-- **Email**: your.email@example.com
+- **Issues**: [GitHub Issues](https://github.com/AdityaCJaiswal/DocIntel-Document-Intelligence-Platform/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/AdityaCJaiswal/DocIntel-Document-Intelligence-Platform/discussions)
+- **Email**: adityajaiswal.codes@gmail.com
 
 ## 🗺️ Roadmap
 
@@ -283,6 +296,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ by [Your Name]**
+**Built with ❤️ by Aditya Jaiswal**
 
 *Transform your documents into intelligent, queryable knowledge bases with Docintel.*
