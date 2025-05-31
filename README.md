@@ -2,7 +2,22 @@
 
 **Docintel** is a comprehensive Document Intelligence Platform that leverages AI to help users interact with their documents through natural language queries. Upload documents, extract content automatically, and chat with your files using advanced Retrieval-Augmented Generation (RAG) technology.
 
-![Docintel Demo](https://via.placeholder.com/800x400/4f46e5/ffffff?text=Docintel+Demo)
+## 📱 Screenshots
+
+### Demo
+![Demo](ui_ss/demo-video.mp4)
+
+### Main Interface
+![Main Interface](ui_ss/home.png)
+
+### Document Upload
+![Document Upload](ui_ss/upload.png)
+
+### Chat Interface
+![Chat Interface](ui_ss/chat.png)
+
+### Document Library
+![Document Library](ui_ss/library.png)
 
 ## ✨ Features
 
@@ -32,20 +47,18 @@
 
 ### Backend (Django REST Framework)
 ```
-docintel-backend/
-├── docintel/
+rag_backend/
+├── rag_backend/
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
-├── documents/
+├── core/
 │   ├── models.py
+│   ├── rag_utils.py
 │   ├── views.py
 │   ├── serializers.py
 │   └── urls.py
-├── chat/
-│   ├── models.py
-│   ├── views.py
-│   └── rag_engine.py
+├── manage.py
 └── requirements.txt
 ```
 
