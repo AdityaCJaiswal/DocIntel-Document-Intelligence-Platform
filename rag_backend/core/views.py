@@ -13,6 +13,11 @@ import os
 import requests
 from django.views.decorators.csrf import ensure_csrf_cookie
 import logging
+import google.generativeai as genai
+
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+gemini_model = genai.GenerativeModel("gemini-2.0-flash")
+
 
 logger = logging.getLogger(__name__)
 
@@ -158,39 +163,20 @@ Instructions:
 - If the context doesn't contain enough information, clearly state what information is missing
 - Be specific and cite relevant parts of the context when possible
 - Keep your answer focused and relevant to the question
+- Provide a detailed and helpful answer
 
 Answer:"""
 
         logger.info(f"Sending request to LM Studio with context length: {len(context)}")
         
         # Get response from LM Studio
-        lm_response = requests.post(
-            "http://localhost:1234/v1/chat/completions",
-            headers={"Content-Type": "application/json"},
-            json={
-                "model": "local-model",
-                "messages": [
-                    {"role": "system", "content": "You are a helpful AI assistant that answers questions based on provided document context. Always base your answers on the given context and be specific about what information you're using."},
-                    {"role": "user", "content": prompt}
-                ],
-                "temperature": 0.3,
-                "max_tokens": 500
-            },
-            timeout=30
-        )
-        
-        if lm_response.status_code != 200:
-            logger.error(f"LM Studio error: {lm_response.status_code} - {lm_response.text}")
-            return Response({"error": f"LM Studio returned error: {lm_response.status_code}"}, status=500)
-        
-        response_json = lm_response.json()
-        
-        if 'choices' not in response_json or not response_json['choices']:
-            logger.error(f"Invalid LM Studio response: {response_json}")
-            return Response({"error": "Invalid response from LM Studio"}, status=500)
-        
-        answer = response_json['choices'][0]['message']['content'].strip()
-        logger.info(f"Generated answer length: {len(answer)}")
+        try:
+            response = gemini_model.generate_content(prompt)
+            answer = response.text.strip()
+            logger.info(f"Generated answer length: {len(answer)}")
+        except Exception as e:
+            logger.error(f"Gemini API error: {str(e)}")
+            return Response({"error": f"Gemini API error: {str(e)}"}, status=500)
 
         # Create or get chat session and save message
         session_id = request.data.get("session_id")
